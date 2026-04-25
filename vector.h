@@ -49,7 +49,7 @@ struct VectorNode{
 template <typename T>
 struct VectorTraits{
     using value_type = T;
-    using Node       = VectorNode<value_type>;
+    using Node       = VectorNode<VectorTraits<T>>;
 };
 
 template <typename Traits>
