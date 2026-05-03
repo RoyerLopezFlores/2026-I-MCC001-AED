@@ -165,7 +165,8 @@ public:
     
     
     virtual        ~LinkedList() {
-        clean_unsafe();
+unique_lock<mutex> lock(m_mtx);
+clean_unsafe();
     }
     //pop front()
     virtual void    push_front(value_type value, Ref ref){
