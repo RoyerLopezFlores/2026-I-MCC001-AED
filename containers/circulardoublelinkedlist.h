@@ -247,32 +247,32 @@ public:
     //    return ss.str();
     //}
 
-    forward_iterator begin()   { return forward_iterator(this, this->m_pRoot); }
-    forward_iterator end()     { return forward_iterator(this, nullptr); }
-    backward_iterator rbegin() { return backward_iterator(this, this->m_pTail); }
-    backward_iterator rend()   { return backward_iterator(this, nullptr); }
+    //forward_iterator begin()   { return forward_iterator(this, this->m_pRoot); }
+    //forward_iterator end()     { return forward_iterator(this, nullptr); }
+    //backward_iterator rbegin() { return backward_iterator(this, this->m_pTail); }
+    //backward_iterator rend()   { return backward_iterator(this, nullptr); }
 
-    template <typename Func, typename... Args>
-    void ForEach(Func func, Args&&... args){
-        scoped_lock<mutex> lock(this->m_mtx);
-        ::ForEach(begin(), end(), func, forward<Args>(args)...);
-    }
+    //template <typename Func, typename... Args>
+    //void ForEach(Func func, Args&&... args){
+    //    scoped_lock<mutex> lock(this->m_mtx);
+    //    ::ForEach(begin(), end(), func, forward<Args>(args)...);
+    //}
 
-    template <typename Func, typename... Args>
-    void ReverseForEach(Func func, Args&&... args){
-        scoped_lock<mutex> lock(this->m_mtx);
-        ::ForEach(rbegin(), rend(), func, forward<Args>(args)...);
-    }
+    //template <typename Func, typename... Args>
+    //void ReverseForEach(Func func, Args&&... args){
+    //    scoped_lock<mutex> lock(this->m_mtx);
+    //    ::ForEach(rbegin(), rend(), func, forward<Args>(args)...);
+    //}
 
-    template <typename Func, typename... Args>
-    forward_iterator FirstThat(Func func, Args&&... args){
-        return ::FirstThat(begin(), end(), func, forward<Args>(args)...);
-    }
+    //template <typename Func, typename... Args>
+    //forward_iterator FirstThat(Func func, Args&&... args){
+    //    return ::FirstThat(begin(), end(), func, forward<Args>(args)...);
+    //}
 
-    template <typename Func, typename... Args>
-    backward_iterator ReverseFirstThat(Func func, Args&&... args){
-        return ::FirstThat(rbegin(), rend(), func, forward<Args>(args)...);
-    }
+    //template <typename Func, typename... Args>
+    //backward_iterator ReverseFirstThat(Func func, Args&&... args){
+    //    return ::FirstThat(rbegin(), rend(), func, forward<Args>(args)...);
+    //}
 };
 
 

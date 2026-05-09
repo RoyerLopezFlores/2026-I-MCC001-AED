@@ -134,8 +134,8 @@ public:
 
 
 
-    forward_iterator begin()   { return forward_iterator(this, this->m_pRoot); }
-    forward_iterator end()     { return forward_iterator(this, nullptr); }
+    //forward_iterator begin()   { return forward_iterator(this, this->m_pRoot); }
+    //forward_iterator end()     { return forward_iterator(this, nullptr); }
     backward_iterator rbegin() { return backward_iterator(this, this->m_pTail); }
     backward_iterator rend()   { return backward_iterator(this, nullptr); }
 

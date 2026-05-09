@@ -154,8 +154,8 @@ public:
     //    return ss.str();
     //}
 
-    forward_iterator begin() { return forward_iterator(this, this->m_pRoot); }
-    forward_iterator end()   { return forward_iterator(this, nullptr); }
+    //forward_iterator begin() { return forward_iterator(this, this->m_pRoot); }
+    //forward_iterator end()   { return forward_iterator(this, nullptr); }
 
     template <typename Func, typename... Args>
     void ForEach(Func func, Args&&... args){
