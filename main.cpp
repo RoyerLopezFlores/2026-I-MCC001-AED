@@ -32,6 +32,7 @@ int main() {
     //DemoVector();
     // DemoConcurrentVector();
     //ListsDemo();
-    DDListDemo();
+    HeapDemo();
+    //DDListDemo();
     return 0;
 }

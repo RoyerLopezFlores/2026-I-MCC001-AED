@@ -3,4 +3,5 @@
 
 void ListsDemo();
 void DDListDemo();
+void HeapDemo();
 #endif // __LISTS_H__

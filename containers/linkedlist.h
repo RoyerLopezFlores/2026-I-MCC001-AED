@@ -11,6 +11,7 @@
 #include "../types.h"
 #include "../foreach.h"
 #include "basetrait.h"
+#include "basenode.h"
 
 using namespace std;
 
@@ -31,40 +32,39 @@ public:
 
 // Linked List Node
 template <typename T>
-class LLNode{
+class LLNode : public BaseNode<T>{
 public:
+    using Parent = BaseNode<T>;
     using value_type = T;
     using Node       = LLNode<T>;
 protected:
-    value_type m_data;
-    Ref        m_ref;
     Node      *m_pNext;
 public:
-    LLNode(){}
+    LLNode(): Parent(){}
     LLNode(value_type data, Ref ref, Node *pNext = nullptr) 
-           : m_data(data), m_ref(ref), m_pNext(pNext) {}
+           : Parent(data, ref), m_pNext(pNext) {}
     virtual ~LLNode() {}
 
-    value_type      getData() const { return m_data; }
-    value_type&     getDataRef()    { return m_data; }
-    void            setData(value_type data) { m_data = data; }
-    Ref             getRef() const  { return m_ref; }
-    Ref&            getRefRef()     { return m_ref; }
-    void            setRef(Ref ref) { m_ref = ref; }
+    value_type      getData() const { return this->m_data; }
+    value_type&     getDataRef()    { return this->m_data; }
+    void            setData(value_type data) { this->m_data = data; }
+    Ref             getRef() const  { return this->m_ref; }
+    Ref&            getRefRef()     { return this->m_ref; }
+    void            setRef(Ref ref) { this->m_ref = ref; }
     Node*           getNext() const { return m_pNext; }
     Node*&          getNextRef()    { return m_pNext; }
     void            setNext(Node *pNext) { m_pNext = pNext; }
     virtual string ToString() const {
         ostringstream oss;
-        oss << "(" << m_data << ", " << m_ref << ")";
+        oss << "(" << this->m_data << ", " << this->m_ref << ")";
         return oss.str();
     }
     virtual istream& fromIstream(istream &is){
         char ch1, ch2, ch3;
         if (is >> ch1 && ch1 == '(' &&
-            is >> m_data &&
+            is >> this->m_data &&
             is >> ch2 && ch2 == ',' &&
-            is >> m_ref &&
+            is >> this->m_ref &&
             is >> ch3 && ch3 == ')') {
             return is;
         }

@@ -7,12 +7,21 @@ classDiagram
     %% Base trait
     class BaseContainerTrait~T,Node~
 
+    %% Base node
+    class BaseNode~T~
+
     %% Base iterator
     class general_iterator~Container,IteratorBase~
 
     %% Nodes
     class LLNode~T~
     class DLLNode~T~
+    class HeapNode~T~
+    class VectorNode~T~
+
+    BaseNode~T~ <|-- LLNode~T~
+    BaseNode~T~ <|-- HeapNode~T~
+    BaseNode~T~ <|-- VectorNode~T~
     LLNode~T~ <|-- DLLNode~T~
 
     %% Linked list traits
@@ -75,7 +84,6 @@ classDiagram
     general_iterator~Container,CircularDoubleLinkedListBackwardIterator<Container>~ <|-- CircularDoubleLinkedListBackwardIterator~Container~
 
     %% Vector side
-    class VectorNode~T~
     class VectorTraits~T~
     class Vector~Traits~
     class vector_forward_iterator~Container~
@@ -84,6 +92,16 @@ classDiagram
     BaseContainerTrait~T,VectorNode<T>~ <|-- VectorTraits~T~
     general_iterator~Container,vector_forward_iterator<Container>~ <|-- vector_forward_iterator~Container~
     general_iterator~Container,vector_backward_iterator<Container>~ <|-- vector_backward_iterator~Container~
+
+    %% Heap side
+    class BaseHeapTrait~T~
+    class AscendingHeapTrait~T~
+    class DescendingHeapTrait~T~
+    class Heap~Traits~
+
+    BaseContainerTrait~T,HeapNode<T>~ <|-- BaseHeapTrait~T~
+    BaseHeapTrait~T~ <|-- AscendingHeapTrait~T~
+    BaseHeapTrait~T~ <|-- DescendingHeapTrait~T~
 ```
 
 ## Nota
