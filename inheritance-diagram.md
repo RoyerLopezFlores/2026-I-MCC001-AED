@@ -5,103 +5,103 @@ classDiagram
     direction LR
 
     %% Base trait
-    class BaseContainerTrait~T,Node~
+    class BaseContainerTrait
 
     %% Base node
-    class BaseNode~T~
+    class BaseNode
 
     %% Base iterator
-    class general_iterator~Container,IteratorBase~
+    class general_iterator
 
     %% Nodes
-    class LLNode~T~
-    class DLLNode~T~
-    class HeapNode~T~
-    class VectorNode~T~
+    class LLNode
+    class DLLNode
+    class HeapNode
+    class VectorNode
 
-    BaseNode~T~ <|-- LLNode~T~
-    BaseNode~T~ <|-- HeapNode~T~
-    BaseNode~T~ <|-- VectorNode~T~
-    LLNode~T~ <|-- DLLNode~T~
+    BaseNode <|-- LLNode
+    BaseNode <|-- HeapNode
+    BaseNode <|-- VectorNode
+    LLNode <|-- DLLNode
 
     %% Linked list traits
-    class BaseLinkedListTrait~T~
-    class AscendingLinkedListTrait~T~
-    class DescendingLinkedListTrait~T~
+    class BaseLinkedListTrait
+    class AscendingLinkedListTrait
+    class DescendingLinkedListTrait
 
-    BaseContainerTrait~T,LLNode<T>~ <|-- BaseLinkedListTrait~T~
-    BaseLinkedListTrait~T~ <|-- AscendingLinkedListTrait~T~
-    BaseLinkedListTrait~T~ <|-- DescendingLinkedListTrait~T~
+    BaseContainerTrait <|-- BaseLinkedListTrait
+    BaseLinkedListTrait <|-- AscendingLinkedListTrait
+    BaseLinkedListTrait <|-- DescendingLinkedListTrait
 
     %% Double linked list traits
-    class BaseDoubleLinkedListTrait~T~
-    class AscendingDoubleLinkedListTrait~T~
-    class DescendingDoubleLinkedListTrait~T~
+    class BaseDoubleLinkedListTrait
+    class AscendingDoubleLinkedListTrait
+    class DescendingDoubleLinkedListTrait
 
-    BaseContainerTrait~T,DLLNode<T>~ <|-- BaseDoubleLinkedListTrait~T~
-    BaseDoubleLinkedListTrait~T~ <|-- AscendingDoubleLinkedListTrait~T~
-    BaseDoubleLinkedListTrait~T~ <|-- DescendingDoubleLinkedListTrait~T~
+    BaseContainerTrait <|-- BaseDoubleLinkedListTrait
+    BaseDoubleLinkedListTrait <|-- AscendingDoubleLinkedListTrait
+    BaseDoubleLinkedListTrait <|-- DescendingDoubleLinkedListTrait
 
     %% Circular linked list traits
-    class BaseCircularLinkedListTrait~T~
-    class AscendingCircularLinkedListTrait~T~
-    class DescendingCircularLinkedListTrait~T~
+    class BaseCircularLinkedListTrait
+    class AscendingCircularLinkedListTrait
+    class DescendingCircularLinkedListTrait
 
-    BaseContainerTrait~T,LLNode<T>~ <|-- BaseCircularLinkedListTrait~T~
-    BaseCircularLinkedListTrait~T~ <|-- AscendingCircularLinkedListTrait~T~
-    BaseCircularLinkedListTrait~T~ <|-- DescendingCircularLinkedListTrait~T~
+    BaseContainerTrait <|-- BaseCircularLinkedListTrait
+    BaseCircularLinkedListTrait <|-- AscendingCircularLinkedListTrait
+    BaseCircularLinkedListTrait <|-- DescendingCircularLinkedListTrait
 
     %% Circular double linked list traits
-    class BaseCircularDoubleLinkedListTrait~T~
-    class AscendingCircularDoubleLinkedListTrait~T~
-    class DescendingCircularDoubleLinkedListTrait~T~
+    class BaseCircularDoubleLinkedListTrait
+    class AscendingCircularDoubleLinkedListTrait
+    class DescendingCircularDoubleLinkedListTrait
 
-    BaseContainerTrait~T,DLLNode<T>~ <|-- BaseCircularDoubleLinkedListTrait~T~
-    BaseCircularDoubleLinkedListTrait~T~ <|-- AscendingCircularDoubleLinkedListTrait~T~
-    BaseCircularDoubleLinkedListTrait~T~ <|-- DescendingCircularDoubleLinkedListTrait~T~
+    BaseContainerTrait <|-- BaseCircularDoubleLinkedListTrait
+    BaseCircularDoubleLinkedListTrait <|-- AscendingCircularDoubleLinkedListTrait
+    BaseCircularDoubleLinkedListTrait <|-- DescendingCircularDoubleLinkedListTrait
 
     %% List containers
-    class LinkedList~Traits~
-    class DoubleLinkedList~Traits~
-    class CircularLinkedList~Traits~
-    class CircularDoubleLinkedList~Traits~
+    class LinkedList
+    class DoubleLinkedList
+    class CircularLinkedList
+    class CircularDoubleLinkedList
 
-    LinkedList~Traits~ <|-- DoubleLinkedList~Traits~
-    LinkedList~Traits~ <|-- CircularLinkedList~Traits~
-    DoubleLinkedList~Traits~ <|-- CircularDoubleLinkedList~Traits~
+    LinkedList <|-- DoubleLinkedList
+    LinkedList <|-- CircularLinkedList
+    DoubleLinkedList <|-- CircularDoubleLinkedList
 
     %% Linked-list iterators
-    class LinkedListForwardIterator~Container~
-    class DoubleLinkedListBackwardIterator~Container~
-    class CircularLinkedListForwardIterator~Container~
-    class CircularDoubleLinkedListForwardIterator~Container~
-    class CircularDoubleLinkedListBackwardIterator~Container~
+    class LinkedListForwardIterator
+    class DoubleLinkedListBackwardIterator
+    class CircularLinkedListForwardIterator
+    class CircularDoubleLinkedListForwardIterator
+    class CircularDoubleLinkedListBackwardIterator
 
-    general_iterator~Container,LinkedListForwardIterator<Container>~ <|-- LinkedListForwardIterator~Container~
-    general_iterator~Container,DoubleLinkedListBackwardIterator<Container>~ <|-- DoubleLinkedListBackwardIterator~Container~
-    general_iterator~Container,CircularLinkedListForwardIterator<Container>~ <|-- CircularLinkedListForwardIterator~Container~
-    general_iterator~Container,CircularDoubleLinkedListForwardIterator<Container>~ <|-- CircularDoubleLinkedListForwardIterator~Container~
-    general_iterator~Container,CircularDoubleLinkedListBackwardIterator<Container>~ <|-- CircularDoubleLinkedListBackwardIterator~Container~
+    general_iterator <|-- LinkedListForwardIterator
+    general_iterator <|-- DoubleLinkedListBackwardIterator
+    general_iterator <|-- CircularLinkedListForwardIterator
+    general_iterator <|-- CircularDoubleLinkedListForwardIterator
+    general_iterator <|-- CircularDoubleLinkedListBackwardIterator
 
     %% Vector side
-    class VectorTraits~T~
-    class Vector~Traits~
-    class vector_forward_iterator~Container~
-    class vector_backward_iterator~Container~
+    class VectorTraits
+    class Vector
+    class vector_forward_iterator
+    class vector_backward_iterator
 
-    BaseContainerTrait~T,VectorNode<T>~ <|-- VectorTraits~T~
-    general_iterator~Container,vector_forward_iterator<Container>~ <|-- vector_forward_iterator~Container~
-    general_iterator~Container,vector_backward_iterator<Container>~ <|-- vector_backward_iterator~Container~
+    BaseContainerTrait <|-- VectorTraits
+    general_iterator <|-- vector_forward_iterator
+    general_iterator <|-- vector_backward_iterator
 
     %% Heap side
-    class BaseHeapTrait~T~
-    class AscendingHeapTrait~T~
-    class DescendingHeapTrait~T~
-    class Heap~Traits~
+    class BaseHeapTrait
+    class AscendingHeapTrait
+    class DescendingHeapTrait
+    class Heap
 
-    BaseContainerTrait~T,HeapNode<T>~ <|-- BaseHeapTrait~T~
-    BaseHeapTrait~T~ <|-- AscendingHeapTrait~T~
-    BaseHeapTrait~T~ <|-- DescendingHeapTrait~T~
+    BaseContainerTrait <|-- BaseHeapTrait
+    BaseHeapTrait <|-- AscendingHeapTrait
+    BaseHeapTrait <|-- DescendingHeapTrait
 ```
 
 ## Nota
