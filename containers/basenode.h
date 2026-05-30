@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 #include "../types.h"
 
@@ -18,6 +19,25 @@ protected:
 public:
     BaseNode() : m_data(value_type()), m_ref(Ref()) {}
     BaseNode(value_type data, Ref ref) : m_data(data), m_ref(ref) {}
+    BaseNode(const BaseNode& other) : m_data(other.m_data), m_ref(other.m_ref) {}
+    BaseNode(BaseNode&& other) noexcept
+        : m_data(std::move(other.m_data)), m_ref(std::exchange(other.m_ref, Ref())) {}
+    BaseNode& operator=(const BaseNode& other) {
+        if (this != &other) {
+            m_data = other.m_data;
+            m_ref = other.m_ref;
+        }
+        return *this;
+    }
+    BaseNode& operator=(BaseNode&& other) noexcept {
+        if (this != &other) {
+            m_data = std::move(other.m_data);
+            m_ref = std::exchange(other.m_ref, Ref());
+        }
+        return *this;
+    }
+
+    
 
     value_type GetData() const { return m_data; }
     value_type& GetDataRef() { return m_data; }

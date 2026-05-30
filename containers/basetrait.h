@@ -20,4 +20,19 @@ struct DescendingTrait{
     using Comp = greater<_T>;
 };
 
+
+template <typename T, template <typename> class NodeTemplate>
+struct BaseNodeContainerTrait : public BaseContainerTrait<T, NodeTemplate<T>> {
+};
+
+template <typename T, template <typename> class NodeTemplate>
+struct AscendingNodeContainerTrait : public BaseNodeContainerTrait<T, NodeTemplate>,
+                                     public AscendingTrait<T> {
+};
+
+template <typename T, template <typename> class NodeTemplate>
+struct DescendingNodeContainerTrait : public BaseNodeContainerTrait<T, NodeTemplate>,
+                                      public DescendingTrait<T> {
+};
+
 #endif // __BASE_TRAIT_H__

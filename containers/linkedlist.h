@@ -86,21 +86,13 @@ istream &operator>>(istream &is, LLNode<T> &node){
 }
 
 template <typename T>
-struct BaseLinkedListTrait : public BaseContainerTrait<T, LLNode<T>>{
-
-};
+using BaseLinkedListTrait = BaseNodeContainerTrait<T, LLNode>;
 
 template <typename T>
-struct AscendingLinkedListTrait : public BaseLinkedListTrait<T>,
-                                  public AscendingTrait<T>
-{
-};
+using AscendingLinkedListTrait = AscendingNodeContainerTrait<T, LLNode>;
 
 template <typename T>
-struct DescendingLinkedListTrait : public BaseLinkedListTrait<T>,
-                                   public DescendingTrait<T>
-{
-};
+using DescendingLinkedListTrait = DescendingNodeContainerTrait<T, LLNode>;
 
 template <typename Traits>
 class LinkedList{

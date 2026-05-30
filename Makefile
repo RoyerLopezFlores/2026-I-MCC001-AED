@@ -3,7 +3,7 @@ CXXFLAGS = -std=c++2b -Wall -g -pthread # Añadido -pthread
 LDFLAGS = -pthread # Añadido -pthread
 
 TARGET = main
-SRCS = main.cpp HeapDemo.cpp
+SRCS = main.cpp HeapDemo.cpp BinaryTreeDemo.cpp
 
 
 #ListsDemo.cpp DLLDemo.cpp 	   
