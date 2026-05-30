@@ -31,6 +31,8 @@ int main() {
     // DemoMacros();
     //DemoVector();
     // DemoConcurrentVector();
-    ListsDemo();
+    //ListsDemo();
+    HeapDemo();
+    //DDListDemo();
     return 0;
 }

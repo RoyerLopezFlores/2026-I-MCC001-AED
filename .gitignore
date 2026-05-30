@@ -41,3 +41,9 @@
 *.dwo
 *.tmp
 main
+
+
+Doxyfile
+changes.txt
+docs/
+/head
