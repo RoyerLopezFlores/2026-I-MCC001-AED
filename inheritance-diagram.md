@@ -102,8 +102,33 @@ classDiagram
     BaseContainerTrait <|-- BaseHeapTrait
     BaseHeapTrait <|-- AscendingHeapTrait
     BaseHeapTrait <|-- DescendingHeapTrait
+
+    %% Binary tree side
+    class BaseBinaryTreeListTrait
+    class DescendingBinaryTreeListTrait
+    class BinaryTree
+    class BinaryTreeNode
+    class BinaryTreeForwardInorderIterator
+    class BinaryTreeBackwardInorderIterator
+    class BinaryTreeForwardPreorderIterator
+    class BinaryTreeBackwardPreorderIterator
+    class BinaryTreeForwardPostorderIterator
+    class BinaryTreeBackwardPostorderIterator
+
+    BaseNode <|-- BinaryTreeNode
+    BinaryTree *-- BinaryTreeNode
+    BinaryTree ..> BaseBinaryTreeListTrait : usa Traits
+    BinaryTree ..> DescendingBinaryTreeListTrait : usa Traits
+
+    general_iterator <|-- BinaryTreeForwardInorderIterator
+    general_iterator <|-- BinaryTreeBackwardInorderIterator
+    general_iterator <|-- BinaryTreeForwardPreorderIterator
+    general_iterator <|-- BinaryTreeBackwardPreorderIterator
+    general_iterator <|-- BinaryTreeForwardPostorderIterator
+    general_iterator <|-- BinaryTreeBackwardPostorderIterator
 ```
 
 ## Nota
 
 El diagrama representa relaciones de herencia por clase y struct en los headers del proyecto.
+Para BinaryTree, tambien se muestra composicion (nodo anidado) y dependencia por Traits.

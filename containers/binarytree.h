@@ -370,12 +370,13 @@ public:
 protected:
     NodePtr m_pRoot = nullptr;
     Comp    m_comp;
-    mutex   m_mtx;
+    mutable mutex m_mtx;
 public:
     BinaryTree() {}
     BinaryTree(const BinaryTree &other) // Copy constructor (deep copy)
         : m_pRoot(nullptr), m_comp(other.m_comp)
     {
+        scoped_lock<mutex> lock(other.m_mtx);
         std::stringstream ss;
         other.serialize(other.m_pRoot, ss);
         if (!deserialize(m_pRoot, ss)) {
@@ -395,19 +396,21 @@ public:
 
     void clear() {
         scoped_lock<mutex> lock(m_mtx);
-        delete m_pRoot;
-        m_pRoot = nullptr;
+        clear_unlocked();
     }
 
     void insert(const value_type &value, Ref ref){
+        scoped_lock<mutex> lock(m_mtx);
         internal_insert(m_pRoot, value, ref);
     }
 
     bool empty() const {
+        scoped_lock<mutex> lock(m_mtx);
         return m_pRoot == nullptr;
     }
 
     const Node* root() const {
+        scoped_lock<mutex> lock(m_mtx);
         return m_pRoot;
     }
     forward_inorder_iterator begin() { 
@@ -448,14 +451,16 @@ public:
     auto rpostorder() { return IteratorRange<backward_postorder_iterator>{rpostorder_begin(), rpostorder_end()}; }
 
     std::string toString() const {
+        scoped_lock<mutex> lock(m_mtx);
         std::stringstream ss;
         serialize(m_pRoot, ss);
         return ss.str();
     }
     std::istream& fromIstream(std::istream &is) {
-        clear();
+        scoped_lock<mutex> lock(m_mtx);
+        clear_unlocked();
         if (!deserialize(m_pRoot, is)) {
-            clear();
+            clear_unlocked();
             is.setstate(std::ios::failbit);
         }
         return is;
@@ -474,6 +479,11 @@ public:
         return ::FirstThat(begin(), end(), func, std::forward<Args>(args)... );
     }
 private:
+    void clear_unlocked() {
+        delete m_pRoot;
+        m_pRoot = nullptr;
+    }
+
     void internal_insert(NodePtr &pNode, const value_type &value, Ref ref){
         if( !pNode ){
             pNode = new Node(value, ref);
