@@ -240,19 +240,14 @@ public:
 
 
 template <typename T>
-struct BaseBinaryTreeListTrait {
-    using value_type = T;
-    using Comp = std::less<T>;
-};
+using BaseBinaryTreeListTrait = BaseNodeContainerTrait<T, BinaryTreeNode>;
 
 template <typename T>
-using AscendingBinaryTreeListTrait = BaseBinaryTreeListTrait<T>;
+using AscendingBinaryTreeListTrait = AscendingNodeContainerTrait<T, BinaryTreeNode>;
 
 template <typename T>
-struct DescendingBinaryTreeListTrait {
-    using value_type = T;
-    using Comp = std::greater<T>;
-};
+using DescendingBinaryTreeListTrait = DescendingNodeContainerTrait<T, BinaryTreeNode>;
+
 
 
 
