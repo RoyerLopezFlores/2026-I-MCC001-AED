@@ -35,5 +35,6 @@ int main() {
     //HeapDemo();
     //DDListDemo();
     BinaryTreeDemo();
+    AVLTreeDemo();
     return 0;
 }

@@ -5,4 +5,5 @@ void ListsDemo();
 void DDListDemo();
 void HeapDemo();
 void BinaryTreeDemo();
+void AVLTreeDemo();
 #endif // __LISTS_H__

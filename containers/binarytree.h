@@ -401,7 +401,10 @@ public:
 
     void insert(const value_type &value, Ref ref){
         scoped_lock<mutex> lock(m_mtx);
-        internal_insert(m_pRoot, value, ref);
+        m_pRoot = internal_insert(m_pRoot, value, ref, nullptr);
+        if (m_pRoot) {
+            m_pRoot->SetParent(nullptr);
+        }
     }
 
     bool empty() const {
@@ -478,20 +481,32 @@ public:
         scoped_lock<mutex> lock(m_mtx);
         return ::FirstThat(begin(), end(), func, std::forward<Args>(args)... );
     }
+protected:
+    virtual NodePtr create_node(const value_type &value, Ref ref, NodePtr parent){
+        return new Node(value, ref, nullptr, nullptr, parent);
+    }
+
+    virtual NodePtr after_insert(NodePtr pNode){
+        return pNode;
+    }
+
+    NodePtr internal_insert(NodePtr pNode, const value_type &value, Ref ref, NodePtr parent = nullptr){
+        if( !pNode ){
+            return create_node(value, ref, parent);
+        }
+        size_t pos = !m_comp(value, pNode->GetDataRef());
+        NodePtr child = internal_insert(pNode->GetChild(pos), value, ref, pNode);
+        pNode->SetChild(pos, child);
+        if (child) {
+            child->SetParent(pNode);
+        }
+        return after_insert(pNode);
+    }
+
 private:
     void clear_unlocked() {
         delete m_pRoot;
         m_pRoot = nullptr;
-    }
-
-    void internal_insert(NodePtr &pNode, const value_type &value, Ref ref){
-        if( !pNode ){
-            pNode = new Node(value, ref);
-            return;
-        }
-        size_t pos = !m_comp(value, pNode->GetDataRef());
-        internal_insert(pNode->GetChildRef(pos), value, ref);
-        pNode->GetChild(pos)->SetParent(pNode);
     }
     void serialize(NodePtr node, std::stringstream& ss) const {
         if (!node) {
