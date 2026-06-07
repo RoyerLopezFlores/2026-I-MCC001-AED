@@ -114,11 +114,23 @@ classDiagram
     class BinaryTreeBackwardPreorderIterator
     class BinaryTreeForwardPostorderIterator
     class BinaryTreeBackwardPostorderIterator
+    class AscendingAVLTreeTrait
+    class DescendingAVLTreeTrait
+    class AVLTree
+    class AVLTreeNode
 
     BaseNode <|-- BinaryTreeNode
     BinaryTree *-- BinaryTreeNode
     BinaryTree ..> BaseBinaryTreeListTrait : usa Traits
     BinaryTree ..> DescendingBinaryTreeListTrait : usa Traits
+
+    BinaryTree <|-- AVLTree
+    BinaryTreeNode <|-- AVLTreeNode
+    AVLTree *-- AVLTreeNode
+    AVLTree ..> AscendingAVLTreeTrait : usa alias
+    AVLTree ..> DescendingAVLTreeTrait : usa alias
+    AscendingAVLTreeTrait ..> BaseBinaryTreeListTrait : alias de
+    DescendingAVLTreeTrait ..> DescendingBinaryTreeListTrait : alias de
 
     general_iterator <|-- BinaryTreeForwardInorderIterator
     general_iterator <|-- BinaryTreeBackwardInorderIterator
@@ -132,3 +144,4 @@ classDiagram
 
 El diagrama representa relaciones de herencia por clase y struct en los headers del proyecto.
 Para BinaryTree, tambien se muestra composicion (nodo anidado) y dependencia por Traits.
+Para AVLTree, se muestra herencia desde BinaryTree y nodo especializado AVLTreeNode.

@@ -21,15 +21,15 @@ public:
 	using BaseNode   = typename Base::Node;
 	using Comp       = typename Base::Comp;
     using BaseNodePtr = typename Base::NodePtr;
-
+    using TH         = TI;
 	class AVLTreeNode : public BaseNode {
 	public:
 		using Parent  = BaseNode;
 		using Node    = AVLTreeNode;
 		using NodePtr = Node*;
-
+        
 	private:
-		int m_height = 1;
+		TH m_height = 1;
 
 	public:
 		AVLTreeNode(const value_type& data, const Ref& ref,
@@ -37,8 +37,8 @@ public:
 			: Parent(data, ref, left, right, parent) {
 		}
 
-		int GetHeight() const { return m_height; }
-		void SetHeight(int height) { m_height = height; }
+		TH GetHeight() const { return m_height; }
+		void SetHeight(TH height) { m_height = height; }
 	};
 
 	using Node    = AVLTreeNode;
@@ -90,7 +90,7 @@ private:
 		return static_cast<NodePtr>(node);
 	}
 
-	static int Height(BaseNode* node) {
+	static TH Height(BaseNode* node) {
 		if (!node) {
 			return 0;
 		}
@@ -101,12 +101,12 @@ private:
 		if (!node) {
 			return;
 		}
-		int left_height = Height(node->GetChild(0));
-		int right_height = Height(node->GetChild(1));
+		TH left_height = Height(node->GetChild(0));
+		TH right_height = Height(node->GetChild(1));
 		ToAVL(node)->SetHeight(1 + std::max(left_height, right_height));
 	}
 
-	static int BalanceFactor(BaseNode* node) {
+	static TH BalanceFactor(BaseNode* node) {
 		if (!node) {
 			return 0;
 		}
@@ -154,7 +154,7 @@ private:
 	BaseNodePtr Rebalance(BaseNodePtr node) {
 		UpdateHeight(node);
 
-		int balance = BalanceFactor(node);
+		TH balance = BalanceFactor(node);
 
 		if (balance > 1) {
 			if (BalanceFactor(node->GetChild(0)) < 0) {
