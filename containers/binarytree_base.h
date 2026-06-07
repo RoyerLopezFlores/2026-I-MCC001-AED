@@ -240,26 +240,143 @@ public:
 
 
 template <typename T>
-struct BaseBinaryTreeListTrait {
-    using value_type = T;
-    using Comp = std::less<T>;
+class BinaryTreeNode : public BaseNode<T> {
+public:
+    using Parent     = BaseNode<T>;
+    using value_type = typename Parent::value_type;
+    using Node       = BinaryTreeNode<T>;
+    using NodePtr    = Node*;
+private:
+    static NodePtr CloneSubtree(NodePtr src, NodePtr parent) {
+        if (!src) {
+            return nullptr;
+        }
+        NodePtr copy = new Node(src->GetData(), src->GetRef(), nullptr, nullptr, parent);
+        copy->m_pChild[0] = CloneSubtree(src->m_pChild[0], copy);
+        copy->m_pChild[1] = CloneSubtree(src->m_pChild[1], copy);
+        return copy;
+    }
+protected:
+    NodePtr    m_pChild[2] = {nullptr, nullptr};
+    NodePtr    m_pParent;   
+public:
+    BinaryTreeNode(const value_type& data, const Ref& ref, 
+        NodePtr left = nullptr, NodePtr right = nullptr, NodePtr parent = nullptr)
+        : Parent(data, ref)
+    {
+        m_pChild[0] = left;
+        m_pChild[1] = right;
+        m_pParent = parent;
+    }
+    // Copy constructor: deep copy del subarbol
+    BinaryTreeNode(const BinaryTreeNode& other)
+        : Parent(other)
+    {
+        m_pParent   = nullptr;
+        m_pChild[0] = CloneSubtree(other.m_pChild[0], this);
+        m_pChild[1] = CloneSubtree(other.m_pChild[1], this);
+    }
+    // Move constructor: transfiere ownership de hijos
+    BinaryTreeNode(BinaryTreeNode&& other) noexcept
+        : Parent(std::move(other))
+    {
+        m_pChild[0] = std::exchange( other.m_pChild[0], nullptr );
+        m_pChild[1] = std::exchange( other.m_pChild[1], nullptr );
+        m_pParent   = std::exchange( other.m_pParent, nullptr );
+        if (m_pChild[0]) m_pChild[0]->m_pParent = this;
+        if (m_pChild[1]) m_pChild[1]->m_pParent = this;
+    }
+
+    Node& operator=(const Node& other) {
+        if (this == &other) {
+            return *this;
+        }
+        Parent::operator=(other);
+        delete m_pChild[0];
+        delete m_pChild[1];
+        m_pChild[0] = CloneSubtree(other.m_pChild[0], this);
+        m_pChild[1] = CloneSubtree(other.m_pChild[1], this);
+        m_pParent   = nullptr;
+        return *this;
+    }
+
+    Node& operator=(Node&& other) noexcept {
+        if (this == &other) {
+            return *this;
+        }
+        Parent::operator=(std::move(other));
+        delete m_pChild[0];
+        delete m_pChild[1];
+        m_pChild[0] = std::exchange(other.m_pChild[0], nullptr);
+        m_pChild[1] = std::exchange(other.m_pChild[1], nullptr);
+        m_pParent   = std::exchange(other.m_pParent, nullptr);
+        if (m_pChild[0]) m_pChild[0]->m_pParent = this;
+        if (m_pChild[1]) m_pChild[1]->m_pParent = this;
+        return *this;
+    }
+
+    ~BinaryTreeNode() {
+        delete m_pChild[0];
+        delete m_pChild[1];
+    };
+
+    //value_type      getData() const { return m_data; }
+    //value_type&     getDataRef()    { return m_data; }
+    //void            setData(value_type data) { m_data = data; }
+    //Ref             getRef() const  { return m_ref; }
+    //Ref&            getRefRef()     { return m_ref; }
+    //void            setRef(Ref ref) { m_ref = ref; }
+
+    NodePtr         GetChild(size_t pos) const { return m_pChild[pos]; }
+    NodePtr&        GetChildRef(size_t pos)    { return m_pChild[pos]; }
+    void            SetChild(size_t pos, NodePtr pChild) { m_pChild[pos] = pChild; }
+    void            SetParent(NodePtr pParent) { m_pParent = pParent; }
+    NodePtr         GetParent() const { return m_pParent; }
+    //string to_string() const {
+    //    stringstream ss;
+    //    ss << "Node(data: " << m_data << ", ref: " << m_ref << ")";
+    //    return ss.str();
+    //}
+    //// Cuidado: en el disco hay posiciones dentro del archivo,
+    ////          en memoria hay punteros
+    //friend ostream& operator<<(ostream& os, 
+    //    const BinaryTreeNode& node) {
+    //    os << node.ToString();
+    //    return os;
+    //}
+
+    //// Cuidado: en el disco hay posiciones dentro del archivo,
+    ////          en memoria hay punteros
+    //friend istream& operator>>(istream& is, 
+    //    BinaryTreeNode& node) {
+    //    string line;
+    //    if (getline(is, line)) {
+    //        stringstream ss(line);
+    //        ss >> node.m_data >> node.m_ref;
+    //    }
+    //    return is;
+    //}
+    //std::string ToString() const {
+    //    std::ostringstream oss;
+    //    oss << "(" << this->m_data << ", " << this->m_ref << ")";
+    //    if (m_pParent) {
+    //        oss << "<-" << m_pParent->GetDataRef();
+    //    }
+    //    return oss.str();
+    //}
 };
 
 template <typename T>
-using AscendingBinaryTreeListTrait = BaseBinaryTreeListTrait<T>;
+using BaseBinaryTreeListTrait = BaseNodeContainerTrait<T, BinaryTreeNode>;
 
 template <typename T>
-struct DescendingBinaryTreeListTrait {
-    using value_type = T;
-    using Comp = std::greater<T>;
-};
+using AscendingBinaryTreeListTrait = AscendingNodeContainerTrait<T, BinaryTreeNode>;
+
+template <typename T>
+using DescendingBinaryTreeListTrait = DescendingNodeContainerTrait<T, BinaryTreeNode>;
 
 
-enum class TraversalOrderTree {
-    Inorder,
-    Preorder,
-    Postorder
-};
+
 
 
 // Proxy que expone begin()/end() para poder usar range-for: for(auto& n : tree.preorder())
@@ -274,91 +391,7 @@ template <typename Traits>
 class BinaryTree{
 public:
     using value_type = typename Traits::value_type;
-    class BinaryTreeNode : public BaseNode<value_type> {
-    public:
-        using Parent  = BaseNode<value_type>;
-        using Node    = BinaryTreeNode;
-        using NodePtr = Node*;
-    private:
-        static NodePtr CloneSubtree(NodePtr src, NodePtr parent) {
-            if (!src) {
-                return nullptr;
-            }
-            NodePtr copy = new Node(src->GetData(), src->GetRef(), nullptr, nullptr, parent);
-            copy->m_pChild[0] = CloneSubtree(src->m_pChild[0], copy);
-            copy->m_pChild[1] = CloneSubtree(src->m_pChild[1], copy);
-            return copy;
-        }
-    protected:
-        NodePtr m_pChild[2] = {nullptr, nullptr};
-        NodePtr m_pParent;
-    public:
-        BinaryTreeNode(const value_type& data, const Ref& ref,
-            NodePtr left = nullptr, NodePtr right = nullptr, NodePtr parent = nullptr)
-            : Parent(data, ref)
-        {
-            m_pChild[0] = left;
-            m_pChild[1] = right;
-            m_pParent = parent;
-        }
-        BinaryTreeNode(const BinaryTreeNode& other)
-            : Parent(other)
-        {
-            m_pParent   = nullptr;
-            m_pChild[0] = CloneSubtree(other.m_pChild[0], this);
-            m_pChild[1] = CloneSubtree(other.m_pChild[1], this);
-        }
-        BinaryTreeNode(BinaryTreeNode&& other) noexcept
-            : Parent(std::move(other))
-        {
-            m_pChild[0] = std::exchange(other.m_pChild[0], nullptr);
-            m_pChild[1] = std::exchange(other.m_pChild[1], nullptr);
-            m_pParent   = std::exchange(other.m_pParent, nullptr);
-            if (m_pChild[0]) m_pChild[0]->m_pParent = this;
-            if (m_pChild[1]) m_pChild[1]->m_pParent = this;
-        }
-
-        Node& operator=(const Node& other) {
-            if (this == &other) {
-                return *this;
-            }
-            Parent::operator=(other);
-            delete m_pChild[0];
-            delete m_pChild[1];
-            m_pChild[0] = CloneSubtree(other.m_pChild[0], this);
-            m_pChild[1] = CloneSubtree(other.m_pChild[1], this);
-            m_pParent   = nullptr;
-            return *this;
-        }
-
-        Node& operator=(Node&& other) noexcept {
-            if (this == &other) {
-                return *this;
-            }
-            Parent::operator=(std::move(other));
-            delete m_pChild[0];
-            delete m_pChild[1];
-            m_pChild[0] = std::exchange(other.m_pChild[0], nullptr);
-            m_pChild[1] = std::exchange(other.m_pChild[1], nullptr);
-            m_pParent   = std::exchange(other.m_pParent, nullptr);
-            if (m_pChild[0]) m_pChild[0]->m_pParent = this;
-            if (m_pChild[1]) m_pChild[1]->m_pParent = this;
-            return *this;
-        }
-
-        ~BinaryTreeNode() {
-            delete m_pChild[0];
-            delete m_pChild[1];
-        }
-
-        NodePtr GetChild(size_t pos) const { return m_pChild[pos]; }
-        NodePtr& GetChildRef(size_t pos) { return m_pChild[pos]; }
-        void SetChild(size_t pos, NodePtr pChild) { m_pChild[pos] = pChild; }
-        void SetParent(NodePtr pParent) { m_pParent = pParent; }
-        NodePtr GetParent() const { return m_pParent; }
-    };
-
-    using Node       = BinaryTreeNode;
+    using Node       = typename Traits::Node;
     using NodePtr    = Node*;
     using Comp       = typename Traits::Comp;
     using MySelf     = BinaryTree<Traits>;
@@ -374,13 +407,12 @@ public:
 protected:
     NodePtr m_pRoot = nullptr;
     Comp    m_comp;
-    mutable mutex m_mtx;
+    mutex   m_mtx;
 public:
     BinaryTree() {}
     BinaryTree(const BinaryTree &other) // Copy constructor (deep copy)
         : m_pRoot(nullptr), m_comp(other.m_comp)
     {
-        scoped_lock<mutex> lock(other.m_mtx);
         std::stringstream ss;
         other.serialize(other.m_pRoot, ss);
         if (!deserialize(m_pRoot, ss)) {
@@ -400,24 +432,19 @@ public:
 
     void clear() {
         scoped_lock<mutex> lock(m_mtx);
-        clear_unlocked();
+        delete m_pRoot;
+        m_pRoot = nullptr;
     }
 
     void insert(const value_type &value, Ref ref){
-        scoped_lock<mutex> lock(m_mtx);
-        m_pRoot = internal_insert(m_pRoot, value, ref, nullptr);
-        if (m_pRoot) {
-            m_pRoot->SetParent(nullptr);
-        }
+        internal_insert(m_pRoot, value, ref);
     }
 
     bool empty() const {
-        scoped_lock<mutex> lock(m_mtx);
         return m_pRoot == nullptr;
     }
 
     const Node* root() const {
-        scoped_lock<mutex> lock(m_mtx);
         return m_pRoot;
     }
     forward_inorder_iterator begin() { 
@@ -458,34 +485,22 @@ public:
     auto rpostorder() { return IteratorRange<backward_postorder_iterator>{rpostorder_begin(), rpostorder_end()}; }
 
     std::string toString() const {
-        scoped_lock<mutex> lock(m_mtx);
         std::stringstream ss;
         serialize(m_pRoot, ss);
         return ss.str();
     }
     std::istream& fromIstream(std::istream &is) {
-        scoped_lock<mutex> lock(m_mtx);
-        clear_unlocked();
+        clear();
         if (!deserialize(m_pRoot, is)) {
-            clear_unlocked();
+            clear();
             is.setstate(std::ios::failbit);
         }
         return is;
     }
     // Agregar Foreach
-    template <TraversalOrderTree Mode = TraversalOrderTree::Inorder, typename Func, typename... Args>
+    template <typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
         scoped_lock<mutex> lock(m_mtx);
-        if constexpr (Mode == TraversalOrderTree::Inorder) {
-            ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
-            return;
-        } else if constexpr (Mode == TraversalOrderTree::Preorder) {
-            ::ForEach(preorder_begin(), preorder_end(), func, std::forward<Args>(args)... );
-            return;
-        } else if constexpr (Mode == TraversalOrderTree::Postorder) {
-            ::ForEach(postorder_begin(), postorder_end(), func, std::forward<Args>(args)... );
-            return;
-        } 
         ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
     }
 
@@ -495,32 +510,15 @@ public:
         scoped_lock<mutex> lock(m_mtx);
         return ::FirstThat(begin(), end(), func, std::forward<Args>(args)... );
     }
-protected:
-    virtual NodePtr create_node(const value_type &value, Ref ref, NodePtr parent){
-        return new Node(value, ref, nullptr, nullptr, parent);
-    }
-
-    virtual NodePtr after_insert(NodePtr pNode){
-        return pNode;
-    }
-
-    NodePtr internal_insert(NodePtr pNode, const value_type &value, Ref ref, NodePtr parent = nullptr){
+private:
+    void internal_insert(NodePtr &pNode, const value_type &value, Ref ref){
         if( !pNode ){
-            return create_node(value, ref, parent);
+            pNode = new Node(value, ref);
+            return;
         }
         size_t pos = !m_comp(value, pNode->GetDataRef());
-        NodePtr child = internal_insert(pNode->GetChild(pos), value, ref, pNode);
-        pNode->SetChild(pos, child);
-        if (child) {
-            child->SetParent(pNode);
-        }
-        return after_insert(pNode);
-    }
-
-private:
-    void clear_unlocked() {
-        delete m_pRoot;
-        m_pRoot = nullptr;
+        internal_insert(pNode->GetChildRef(pos), value, ref);
+        pNode->GetChild(pos)->SetParent(pNode);
     }
     void serialize(NodePtr node, std::stringstream& ss) const {
         if (!node) {
