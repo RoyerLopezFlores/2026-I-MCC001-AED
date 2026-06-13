@@ -59,9 +59,9 @@ void PrintLevelOrder(const Node* root) {
 		}
 	}
 }
-
+using BTI = BinaryTree<AscendingBinaryTreeListTrait<TI>>;
 void BinaryTreeDemo() {
-	BinaryTree<AscendingBinaryTreeListTrait<TI>> tree;
+	BTI tree;
 
 	tree.insert(50, 1);
 	tree.insert(30, 2);
@@ -138,6 +138,12 @@ void BinaryTreeDemo() {
 		acc += node.GetData();
 	}, sum);
 	cout << "Suma de nodos (in-order): " << sum << endl;
+
+	TI sumPost = 0;
+	tree.ForEach<&BTI::postorder>([](auto& node, TI& acc) {
+		acc += node.GetData();
+	}, sumPost);
+	cout << "Suma de nodos (post-order): " << sumPost << endl;
 
 	TI n = 55;
 	auto firstGreater = tree.FirstThat([](auto& node, TI limit) {

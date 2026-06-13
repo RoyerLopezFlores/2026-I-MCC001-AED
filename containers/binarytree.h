@@ -14,71 +14,236 @@
 #include <mutex> 
 
 
-template <typename Container>
-class BinaryTreeForwardInorderIterator : public general_iterator<Container, 
-                                         BinaryTreeForwardInorderIterator<Container>>{
-    using MySelf = BinaryTreeForwardInorderIterator<Container>;
+using IndexNode = size_t;
+
+//template <typename Container>
+//class BinaryTreeIterator : public general_iterator<Container, BinaryTreeIterator<Container>> {
+//    protected:
+//    using MySelf = BinaryTreeIterator<Container>;
+//    using Parent = general_iterator<Container, MySelf>;
+//    using Node = typename Container::Node;
+//    virtual void advance() = 0;
+//    virtual void init_begin() = 0;
+//    public:
+//    
+//    BinaryTreeIterator(Container* container, Node* node)
+//        : Parent(container, node) {}
+//    virtual ~BinaryTreeIterator() = default;
+//    BinaryTreeIterator& operator++() {
+//        this->advance();
+//        return *this;
+//    }
+//};
+//template <typename Container>
+//class BinaryTreeInorderIteratorBase : public BinaryTreeIterator<Container> {
+//    using MySelf = BinaryTreeInorderIteratorBase<Container>;
+//    using Node = typename Container::Node;
+//    protected:
+//    IndexNode getIndexAlt(IndexNode index) const {
+//        return (index + 1) % 2;
+//    }
+//    MySelf& next_node_by_index(IndexNode index){
+//        if(!this->m_pNode) return *this; // end()
+//        IndexNode alt_index = getIndexAlt(index);
+//        // Caso que hay nodo derecho
+//        if(this->m_pNode->GetChild(index)){
+//            this->m_pNode = this->m_pNode->GetChild(index);
+//            while(this->m_pNode->GetChild(alt_index)){
+//                this->m_pNode = this->m_pNode->GetChild(alt_index);
+//            }
+//        }else{
+//            //subimos
+//            Node* parent = this->m_pNode->GetParent();
+//            while(parent && this->m_pNode == parent->GetChild(index)){
+//                this->m_pNode = parent;
+//                parent = parent->GetParent();
+//            } 
+//            this->m_pNode = parent;
+//        }
+//        return *this;
+//    }
+//
+//};
+
+
+//template <typename Container>
+//class BinaryTreeForwardInorderIterator : public BinaryTreeIterator<Container>{
+//    using MySelf = BinaryTreeForwardInorderIterator<Container>;
+//    using Parent = BinaryTreeIterator<Container>;
+//    //using Parent::Parent;
+//    //using IndexNode = size_t;
+//    using Node = typename Container::Node;
+//    using NodePtr = typename Container::Node*;
+//    public:
+//        BinaryTreeForwardInorderIterator(Container* container, Node* node)
+//            : Parent(container, node)
+//        {
+//            init_begin();
+//        }
+//
+//    IndexNode getIndexAlt(IndexNode index) const {
+//        return (index + 1) % 2;
+//    }
+//    BinaryTreeForwardInorderIterator& next_node_by_index(IndexNode index){
+//        if(!this->m_pNode) return *this; // end()
+//        IndexNode alt_index = getIndexAlt(index);
+//        // Caso que hay nodo derecho
+//        if(this->m_pNode->GetChild(index)){
+//            this->m_pNode = this->m_pNode->GetChild(index);
+//            while(this->m_pNode->GetChild(alt_index)){
+//                this->m_pNode = this->m_pNode->GetChild(alt_index);
+//            }
+//        }else{
+//            //subimos
+//            Node* parent = this->m_pNode->GetParent();
+//            while(parent && this->m_pNode == parent->GetChild(index)){
+//                this->m_pNode = parent;
+//                parent = parent->GetParent();
+//            } 
+//            this->m_pNode = parent;
+//        }
+//        return *this;
+//    }
+//    void init_begin() override {
+//        if (!this->m_pNode) return; // empty tree
+//        while (this->m_pNode->GetChild(0)) {
+//            this->m_pNode = this->m_pNode->GetChild(0);
+//        }
+//        //NodePtr current = this->m_pRoot;
+//        //while(current && current->GetChild(0)){
+//        //    current = current->GetChild(0);
+//        //}    
+//    }
+//    void advance() override {
+//        this->next_node_by_index(1); // 1 = derecha
+//    }
+//
+//};
+//template <typename Container>
+//class BinaryTreeForwardInorderIterator : public general_iterator<Container, 
+//                                         BinaryTreeForwardInorderIterator<Container>>{
+//    using MySelf = BinaryTreeForwardInorderIterator<Container>;
+//    using Parent = general_iterator<Container, MySelf>;
+//    using Parent::Parent;
+//    using Node = typename Container::Node;
+//
+//public:
+//    // TODO: Completar el operator++
+//    //Tenemos que pasar el primer nodo mas izquierdo del arbol
+//    // LNR
+//    MySelf& operator++(){
+//        // this->m_pNode = this->m_pNode->getNext();
+//        
+//        if(!this->m_pNode) return *this; // end()
+//        
+//        // Caso que hay nodo derecho
+//        if(this->m_pNode->GetChild(1)){
+//            this->m_pNode = this->m_pNode->GetChild(1);
+//            while(this->m_pNode->GetChild(0)){
+//                this->m_pNode = this->m_pNode->GetChild(0);
+//            }
+//        }else{
+//            //subimos
+//            Node* parent = this->m_pNode->GetParent();
+//            while(parent && this->m_pNode == parent->GetChild(1)){
+//                this->m_pNode = parent;
+//                parent = parent->GetParent();
+//            } 
+//            this->m_pNode = parent;
+//        }
+//        return *this;
+//    }
+//};
+//
+//template <typename Container>
+//class BinaryTreeBackwardInorderIterator : public general_iterator<Container, 
+//                                         BinaryTreeBackwardInorderIterator<Container>>{
+//    using MySelf = BinaryTreeBackwardInorderIterator<Container>;
+//    using Parent = general_iterator<Container, MySelf>;
+//    using Parent::Parent;
+//    using Node = typename Container::Node;
+//public:
+//    // RNL
+//    // TODO: Completar el operator++
+//    MySelf& operator++(){
+//        if (!this->m_pNode) return *this; // rend()
+//        if (this->m_pNode->GetChild(0)) {
+//            this->m_pNode = this->m_pNode->GetChild(0);
+//            while (this->m_pNode->GetChild(1)) {
+//                this->m_pNode = this->m_pNode->GetChild(1);
+//            }
+//        } else {
+//            
+//            Node* parent = this->m_pNode->GetParent();
+//            while (parent && this->m_pNode == parent->GetChild(0)) {
+//                this->m_pNode = parent;
+//                parent = parent->GetParent();
+//            }
+//            this->m_pNode = parent;
+//        }
+//        return *this;
+//    }
+//};
+template <typename Container, int Direction>
+class BinaryTreeInorderIterator :
+    public general_iterator<
+        Container,
+        BinaryTreeInorderIterator<Container, Direction>
+    >
+{
+    using MySelf = BinaryTreeInorderIterator<Container, Direction>;
     using Parent = general_iterator<Container, MySelf>;
+
     using Parent::Parent;
+
     using Node = typename Container::Node;
 
+    static constexpr IndexNode Left  = Direction%2;
+    static constexpr IndexNode Right = 1 - Direction%2;
+
 public:
-    // TODO: Completar el operator++
-    //Tenemos que pasar el primer nodo mas izquierdo del arbol
-    // LNR
-    MySelf& operator++(){
-        // this->m_pNode = this->m_pNode->getNext();
-        
-        if(!this->m_pNode) return *this; // end()
-        
-        // Caso que hay nodo derecho
-        if(this->m_pNode->GetChild(1)){
-            this->m_pNode = this->m_pNode->GetChild(1);
-            while(this->m_pNode->GetChild(0)){
-                this->m_pNode = this->m_pNode->GetChild(0);
+    MySelf& operator++()
+    {
+        if (!this->m_pNode)
+            return *this;
+
+        // Existe subárbol "derecho" según la dirección
+        if (this->m_pNode->GetChild(Right))
+        {
+            this->m_pNode = this->m_pNode->GetChild(Right);
+
+            while (this->m_pNode->GetChild(Left))
+            {
+                this->m_pNode = this->m_pNode->GetChild(Left);
             }
-        }else{
-            //subimos
+        }
+        else
+        {
             Node* parent = this->m_pNode->GetParent();
-            while(parent && this->m_pNode == parent->GetChild(1)){
+
+            while (parent &&
+                   this->m_pNode == parent->GetChild(Right))
+            {
                 this->m_pNode = parent;
                 parent = parent->GetParent();
-            } 
+            }
+
             this->m_pNode = parent;
         }
+
         return *this;
     }
 };
 
 template <typename Container>
-class BinaryTreeBackwardInorderIterator : public general_iterator<Container, 
-                                         BinaryTreeBackwardInorderIterator<Container>>{
-    using MySelf = BinaryTreeBackwardInorderIterator<Container>;
-    using Parent = general_iterator<Container, MySelf>;
-    using Parent::Parent;
-    using Node = typename Container::Node;
-public:
-    // RNL
-    // TODO: Completar el operator++
-    MySelf& operator++(){
-        if (!this->m_pNode) return *this; // rend()
-        if (this->m_pNode->GetChild(0)) {
-            this->m_pNode = this->m_pNode->GetChild(0);
-            while (this->m_pNode->GetChild(1)) {
-                this->m_pNode = this->m_pNode->GetChild(1);
-            }
-        } else {
-            
-            Node* parent = this->m_pNode->GetParent();
-            while (parent && this->m_pNode == parent->GetChild(0)) {
-                this->m_pNode = parent;
-                parent = parent->GetParent();
-            }
-            this->m_pNode = parent;
-        }
-        return *this;
-    }
-};
+using BinaryTreeForwardInorderIterator =
+    BinaryTreeInorderIterator<Container, 0>; // LNR
+
+template <typename Container>
+using BinaryTreeBackwardInorderIterator =
+    BinaryTreeInorderIterator<Container, 1>; // RNL
+
+
 
 // NLR:
 // con pilas
@@ -421,11 +586,7 @@ public:
         return m_pRoot;
     }
     forward_inorder_iterator begin() { 
-        NodePtr current = m_pRoot;
-        while(current && current->GetChild(0)){
-            current = current->GetChild(0);
-        }    
-        return forward_inorder_iterator(this, current); 
+        return forward_inorder_iterator(this, m_pRoot); 
     }
     forward_inorder_iterator end()   { return forward_inorder_iterator(this, nullptr); }
     backward_inorder_iterator rbegin() {
@@ -473,27 +634,31 @@ public:
         return is;
     }
     // Agregar Foreach
-    template <TraversalOrderTree Mode = TraversalOrderTree::Inorder, typename Func, typename... Args>
+    //template <TraversalOrderTree Mode = TraversalOrderTree::Inorder, typename Func, typename... Args>
+    //auto (BinaryTree::*mode)()
+    template <auto mode = &BinaryTree::inorder, typename Func, typename... Args>
     void ForEach(Func func, Args &&...  args){
         scoped_lock<mutex> lock(m_mtx);
-        if constexpr (Mode == TraversalOrderTree::Inorder) {
-            ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
-            return;
-        } else if constexpr (Mode == TraversalOrderTree::Preorder) {
-            ::ForEach(preorder_begin(), preorder_end(), func, std::forward<Args>(args)... );
-            return;
-        } else if constexpr (Mode == TraversalOrderTree::Postorder) {
-            ::ForEach(postorder_begin(), postorder_end(), func, std::forward<Args>(args)... );
-            return;
-        } 
-        ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
+        //if constexpr (Mode == TraversalOrderTree::Inorder) {
+        //    ::ForEach(begin(), end(), func, std::forward<Args>(args)... );
+        //    return;
+        //} else if constexpr (Mode == TraversalOrderTree::Preorder) {
+        //    ::ForEach(preorder_begin(), preorder_end(), func, std::forward<Args>(args)... );
+        //    return;
+        //} else if constexpr (Mode == TraversalOrderTree::Postorder) {
+        //    ::ForEach(postorder_begin(), postorder_end(), func, std::forward<Args>(args)... );
+        //    return;
+        //} 
+        auto range = (this->*mode)();
+        ::ForEach(range.begin(), range.end(), func, std::forward<Args>(args)... );
     }
 
     //Agregar FirstThat
-    template <typename Func, typename... Args>
+    template <auto mode = &BinaryTree::inorder, typename Func, typename... Args>
     forward_iterator FirstThat(Func func, Args &&...  args){
         scoped_lock<mutex> lock(m_mtx);
-        return ::FirstThat(begin(), end(), func, std::forward<Args>(args)... );
+        auto range = (this->*mode)();
+        return ::FirstThat(range.begin(), range.end(), func, std::forward<Args>(args)... );
     }
 protected:
     virtual NodePtr create_node(const value_type &value, Ref ref, NodePtr parent){
