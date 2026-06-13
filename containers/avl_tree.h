@@ -7,6 +7,8 @@
 
 #include "binarytree.h"
 
+using TD = size_t;
+
 template <typename T>
 using AscendingAVLTreeTrait = AscendingBinaryTreeListTrait<T>;
 
@@ -115,41 +117,77 @@ private:
     // en lugar de rotate left o rigth se puede colocar 0 o 1 para indicar la direccion de rotacion
     //TODO: agregar rotate left o right con direccion
     // Aun se dejara asi para mayor claridad
-	static BaseNodePtr RotateRight(BaseNodePtr y) {
-		BaseNodePtr x = y->GetChild(0);
-		BaseNodePtr t2 = x->GetChild(1);
+	//static BaseNodePtr RotateRight(BaseNodePtr y) {
+	//	BaseNodePtr x = y->GetChild(0);
+	//	BaseNodePtr t2 = x->GetChild(1);
+//
+	//	x->SetChild(1, y);
+	//	x->SetParent(y->GetParent());
+//
+	//	y->SetChild(0, t2);
+	//	if (t2) {
+	//		t2->SetParent(y);
+	//	}
+	//	y->SetParent(x);
+//
+	//	UpdateHeight(y);
+	//	UpdateHeight(x);
+	//	return x;
+	//}
+//
+	//static BaseNodePtr RotateLeft(BaseNodePtr x) {
+	//	BaseNodePtr y = x->GetChild(1);
+	//	BaseNodePtr t2 = y->GetChild(0);
+//
+	//	y->SetChild(0, x);
+	//	y->SetParent(x->GetParent());
+//
+	//	x->SetChild(1, t2);
+	//	if (t2) {
+	//		t2->SetParent(x);
+	//	}
+	//	x->SetParent(y);
+//
+	//	UpdateHeight(x);
+	//	UpdateHeight(y);
+	//	return y;
+	//}
 
-		x->SetChild(1, y);
-		x->SetParent(y->GetParent());
+	static BaseNodePtr Rotate(BaseNodePtr root, TD dir)
+	{
+		TD LEFT  = 0;
+		TD RIGHT = 1;
+		TD opposite = dir ^ 1;
+		BaseNodePtr pivot = root->GetChild(dir);
+		BaseNodePtr middle = pivot->GetChild(opposite);
 
-		y->SetChild(0, t2);
-		if (t2) {
-			t2->SetParent(y);
+		pivot->SetChild(opposite, root);
+		pivot->SetParent(root->GetParent());
+
+		root->SetChild(dir, middle);
+		if (middle) {
+			middle->SetParent(root);
 		}
-		y->SetParent(x);
 
-		UpdateHeight(y);
-		UpdateHeight(x);
-		return x;
+		root->SetParent(pivot);
+
+		UpdateHeight(root);
+		UpdateHeight(pivot);
+
+		return pivot;
 	}
 
-	static BaseNodePtr RotateLeft(BaseNodePtr x) {
-		BaseNodePtr y = x->GetChild(1);
-		BaseNodePtr t2 = y->GetChild(0);
-
-		y->SetChild(0, x);
-		y->SetParent(x->GetParent());
-
-		x->SetChild(1, t2);
-		if (t2) {
-			t2->SetParent(x);
-		}
-		x->SetParent(y);
-
-		UpdateHeight(x);
-		UpdateHeight(y);
-		return y;
+	static BaseNodePtr RotateRight(BaseNodePtr node)
+	{
+		return Rotate(node, 0);
 	}
+
+	static BaseNodePtr RotateLeft(BaseNodePtr node)
+	{
+		return Rotate(node, 1);
+	}
+
+
 
 	BaseNodePtr Rebalance(BaseNodePtr node) {
 		UpdateHeight(node);
