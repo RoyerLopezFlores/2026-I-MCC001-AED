@@ -7,7 +7,7 @@
 
 #include "binarytree.h"
 
-using TD = size_t;
+
 
 template <typename T>
 using AscendingAVLTreeTrait = AscendingBinaryTreeListTrait<T>;
@@ -24,6 +24,7 @@ public:
 	using Comp       = typename Base::Comp;
     using BaseNodePtr = typename Base::NodePtr;
     using TH         = TI;
+	using TD = size_t;
 	class AVLTreeNode : public BaseNode {
 	public:
 		using Parent  = BaseNode;
