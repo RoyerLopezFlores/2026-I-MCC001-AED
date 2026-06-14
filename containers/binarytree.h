@@ -521,6 +521,8 @@ public:
         void SetChild(size_t pos, NodePtr pChild) { m_pChild[pos] = pChild; }
         void SetParent(NodePtr pParent) { m_pParent = pParent; }
         NodePtr GetParent() const { return m_pParent; }
+        virtual TI GetHeight() const { return 1; }
+        virtual void SetHeight(TI) {}
     };
 
     using Node       = BinaryTreeNode;

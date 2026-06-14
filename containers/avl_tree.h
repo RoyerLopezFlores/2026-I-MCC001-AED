@@ -36,12 +36,12 @@ public:
 
 	public:
 		AVLTreeNode(const value_type& data, const Ref& ref,
-					NodePtr left = nullptr, NodePtr right = nullptr, NodePtr parent = nullptr)
+					BaseNodePtr left = nullptr, BaseNodePtr right = nullptr, BaseNodePtr parent = nullptr)
 			: Parent(data, ref, left, right, parent) {
 		}
 
-		TH GetHeight() const { return m_height; }
-		void SetHeight(TH height) { m_height = height; }
+		TH GetHeight() const override { return m_height; }
+		void SetHeight(TH height) override { m_height = height; }
 	};
 
 	using Node    = AVLTreeNode;
@@ -89,15 +89,11 @@ public:
 	}
 
 private:
-	static NodePtr ToAVL(BaseNode* node) {
-		return static_cast<NodePtr>(node);
-	}
-
 	static TH Height(BaseNode* node) {
 		if (!node) {
 			return 0;
 		}
-		return ToAVL(node)->GetHeight();
+		return node->GetHeight();
 	}
 
 	static void UpdateHeight(BaseNode* node) {
@@ -106,7 +102,7 @@ private:
 		}
 		TH left_height = Height(node->GetChild(0));
 		TH right_height = Height(node->GetChild(1));
-		ToAVL(node)->SetHeight(1 + std::max(left_height, right_height));
+		node->SetHeight(1 + std::max(left_height, right_height));
 	}
 
 	static TH BalanceFactor(BaseNode* node) {
@@ -156,8 +152,6 @@ private:
 
 	static BaseNodePtr Rotate(BaseNodePtr root, TD dir)
 	{
-		TD LEFT  = 0;
-		TD RIGHT = 1;
 		TD opposite = dir ^ 1;
 		BaseNodePtr pivot = root->GetChild(dir);
 		BaseNodePtr middle = pivot->GetChild(opposite);
@@ -222,7 +216,7 @@ private:
 
 protected:
 	BaseNodePtr create_node(const value_type& value, Ref ref, BaseNodePtr parent) override {
-		return new Node(value, ref, nullptr, nullptr, ToAVL(parent));
+		return new Node(value, ref, nullptr, nullptr, parent);
 	}
 
 	BaseNodePtr after_insert(BaseNodePtr node) override {
@@ -234,8 +228,8 @@ protected:
 			return nullptr;
 		}
 
-		NodePtr copy = new Node(src->GetData(), src->GetRef(), nullptr, nullptr, ToAVL(parent));
-		copy->SetHeight(ToAVL(src)->GetHeight());
+		NodePtr copy = new Node(src->GetData(), src->GetRef(), nullptr, nullptr, parent);
+		copy->SetHeight(src->GetHeight());
 
 		BaseNodePtr left = CloneSubtree(src->GetChild(0), copy);
 		BaseNodePtr right = CloneSubtree(src->GetChild(1), copy);
