@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <assert.h>
+#include <functional>
 #include <utility>
 #include "types.h"
 #include "../foreach.h"
@@ -17,24 +18,21 @@
 
 // Si no lo encuentra, deberia decirme:
 // cual es la posicion donde deberia estar
-template <typename Container, typename ObjType>
-TINDEX binary_search(Container& container, TINDEX first, TINDEX last, ObjType &object)
+template <typename Container, typename ObjType, typename Compare = std::less<>>
+TINDEX binary_search(Container& container, TINDEX first, TINDEX last, const ObjType &object, Compare comp = Compare{})
 {
-       if( first >= last )
-               return first;
        while( first < last )
        {
                TINDEX mid = (first+last)/2;
-               if( object == (ObjType)container[mid ] )
+               const ObjType value = (ObjType)container[mid];
+               if( !comp(value, object) && !comp(object, value) )
                        return mid;
-               if( object > (ObjType)container[mid ] )
+               if( comp(value, object) )
                        first = mid+1;
                else
                        last  = mid;
        }
-       if( object <= (ObjType)container[first] )
-               return first;
-       return last;
+       return first;
 }
 
 template <typename Container, typename ObjType>
@@ -89,12 +87,16 @@ template <typename keyType, typename ObjIDType>
 struct BaseBtreeTraits{
         using key_type = keyType;
         using objid_type = ObjIDType;
+        
 };
 
-template <typename keyType, typename ObjIDType>
+
+
+template <typename keyType, typename ObjIDType, typename Compare = std::less<keyType>>
 struct BTreePageTraits : public BaseBtreeTraits<keyType, ObjIDType>
 {
-        using Node = tagNode<BTreePageTraits<keyType, ObjIDType>>;
+        using Node = tagNode<BTreePageTraits<keyType, ObjIDType, Compare>>;
+        using Comp = Compare;
 };
 
 
@@ -112,7 +114,7 @@ public:
         using objid_type = typename Traits::objid_type;
         using BTPage = CBTreePage<Traits>;
         using Node = typename Traits::Node;
-
+        using Comp = typename Traits::Comp;
 
         
         typedef void (*lpfnForEach2)(Node &info, TLENGTH level, void *pExtra1);
@@ -221,7 +223,7 @@ CBTreePage<Traits>::~CBTreePage()
 template <typename Traits>
 bt_ErrorCode CBTreePage<Traits>::Insert(const key_type& key, const objid_type ObjID)
 {
-       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key);
+       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key, Comp());
        bt_ErrorCode error = bt_ok;
 
         if( pos < m_KeyCount && (key_type)m_Keys[pos] == key && m_Unique)
@@ -518,7 +520,7 @@ bool CBTreePage<Traits>::SplitRoot()
 template <typename Traits>
 BLBT CBTreePage<Traits>::Search(const key_type &key, objid_type &ObjID)
 {
-       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key);
+       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key, Comp());
        if( pos >= m_KeyCount ){
                if( m_SubPages[pos] ) return m_SubPages[pos]->Search(key, ObjID);
                else return false;
@@ -653,7 +655,7 @@ template <typename Traits>
 bt_ErrorCode CBTreePage<Traits>::Remove(const key_type &key, const objid_type ObjID)
 {
        bt_ErrorCode error = bt_ok;
-       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key);
+       TINDEX pos = binary_search(m_Keys, 0, m_KeyCount, key, Comp());
        if( pos < NumberOfKeys() && key == m_Keys[pos].key /*&& m_Keys[pos].m_ObjID == ObjID*/) // We found it !
        {
                // This is a leave: First
