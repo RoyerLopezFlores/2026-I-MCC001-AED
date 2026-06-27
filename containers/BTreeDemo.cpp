@@ -43,7 +43,7 @@ void main(int argc, char * argv[], char * envp[])
        }
        bt.Print(cout);
        cout.flush();*/
-       return 1;
+       return;
 }
 
 /*const char * keys="CDAMPIWNBKEHOLJYQZFXVRTSGU";

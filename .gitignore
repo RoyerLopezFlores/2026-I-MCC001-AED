@@ -41,3 +41,7 @@
 *.dwo
 *.tmp
 main
+
+*.md
+*.txt
+docs/
