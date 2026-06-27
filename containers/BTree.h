@@ -15,10 +15,9 @@
 #define DEFAULT_BTREE_ORDER 3
 
 template <typename keyType, typename ObjIDType>
-struct BTreeTraits
+struct BTreeTraits: public BaseBtreeTraits<keyType, ObjIDType>
 {
-       using key_type = keyType;
-       using objid_type = ObjIDType;
+       
        using page_type = CBTreePage<BTreePageTraits<keyType, ObjIDType>>;
        using node_type = typename page_type::Node;
 };

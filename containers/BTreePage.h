@@ -86,10 +86,14 @@ struct tagNode
 };
 //: public BaseContainerTrait<keyType, tagNode<BTreePageTraits<keyType, ObjIDType>>>
 template <typename keyType, typename ObjIDType>
-struct BTreePageTraits 
-{
+struct BaseBtreeTraits{
         using key_type = keyType;
         using objid_type = ObjIDType;
+};
+
+template <typename keyType, typename ObjIDType>
+struct BTreePageTraits : public BaseBtreeTraits<keyType, ObjIDType>
+{
         using Node = tagNode<BTreePageTraits<keyType, ObjIDType>>;
 };
 
