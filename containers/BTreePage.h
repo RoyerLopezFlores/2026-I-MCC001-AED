@@ -14,6 +14,7 @@
 #include <utility>
 #include "types.h"
 #include "../foreach.h"
+#include "basetrait.h"
 //#include "basetrait.h"
 
 // Si no lo encuentra, deberia decirme:
@@ -67,50 +68,38 @@ template <typename keyType>
 bool operator<=(const _Node<keyType>& object1, const _Node<keyType>& object2)
 { return object1.key <= object2.key;    }*/
 
-template <typename Traits>
+template <typename KeyType, typename ObjIDType = long>
 struct tagNode
 {
-       using key_type = typename Traits::key_type;
-       using objid_type = typename Traits::objid_type;
+       using value_type = KeyType;
+       using objid_type = ObjIDType;
 
-       key_type                key;
+       value_type              key;
        objid_type              ObjID;
        TLENGTH                 UseCounter;
-       tagNode(const key_type &_key, objid_type _ObjID)
+       tagNode(const value_type &_key, objid_type _ObjID)
                : key(_key), ObjID(_ObjID), UseCounter(0) {}
-       tagNode() : UseCounter(0) {}
-       operator key_type()     { return key; }
-       TLENGTH                    GetUseCounter() { return UseCounter;    }
-};
-//: public BaseContainerTrait<keyType, tagNode<BTreePageTraits<keyType, ObjIDType>>>
-template <typename keyType, typename ObjIDType>
-struct BaseBtreeTraits{
-        using key_type = keyType;
-        using objid_type = ObjIDType;
-        
+       tagNode() : key(), ObjID(), UseCounter(0) {}
+       operator value_type() const { return key; }
+       TLENGTH                 GetUseCounter() const { return UseCounter; }
 };
 
-
-
-template <typename keyType, typename ObjIDType, typename Compare = std::less<keyType>>
-struct BTreePageTraits : public BaseBtreeTraits<keyType, ObjIDType>
+template <typename keyType, typename ObjIDType = long>
+struct BaseBtreeTraits: public BaseContainerTrait<keyType, tagNode<keyType, ObjIDType>>
 {
-        using Node = tagNode<BTreePageTraits<keyType, ObjIDType, Compare>>;
-        using Comp = Compare;
+       using objid_type = ObjIDType;
 };
 
-
-template <typename TraitsPage>
+template <typename Traits>
 class CBTreePage 
 // this is the in-memory version of the CBTreePage
 {
         template <typename>
         friend class BTreeT;
 
-       //typedef CBTreePage<keyType, ObjIDType>    BTPage;         // useful shorthand
 public:
-        using Traits = TraitsPage;
-        using key_type = typename Traits::key_type;
+
+        using key_type = typename Traits::value_type;
         using objid_type = typename Traits::objid_type;
         using BTPage = CBTreePage<Traits>;
         using Node = typename Traits::Node;
@@ -134,15 +123,15 @@ public:
         BLBT            Search (const key_type &key, objid_type &ObjID);
         void            Print  (ostream &os);
         template <typename Func, typename... Args>
-        void ForEach(Func&& func, Args&&... args);
+        void ForEach(Func func, Args&&... args);
         template <typename Func, typename... Args>
-        void ForEachPerPage(Func&& func, Args&&... args);
+        void ForEachPerPage( TOBT level, Func func, Args&&... args);
        //void            ForEach(lpfnForEach2 lpfn, TLENGTH level, void *pExtra1);
        //void            ForEach(lpfnForEach3 lpfn, TLENGTH level, void *pExtra1, void *pExtra2);
        //Node*     FirstThat(lpfnFirstThat2 lpfn, TLENGTH level, void *pExtra1);
        //Node*     FirstThat(lpfnFirstThat3 lpfn, TLENGTH level, void *pExtra1, void *pExtra2);
        template <typename Func, typename... Args>
-       Node* FirstThat(Func&& func, Args&&... args); 
+       auto FirstThat(Func func, Args&&... args); 
 protected:
        TLENGTH  m_MinKeys; // minimum number of keys in a node
        TLENGTH  m_MaxKeys, // maximum number of keys in a node
@@ -188,12 +177,6 @@ protected:
        TLENGTH GetFreeCellsOnRight(TINDEX pos);
 
 private:
-        template <typename Func, typename... Args>
-        void ForEachImpl( Func& func, Args&... args);
-        template <typename Func, typename... Args>
-        void ForEachPerPageImpl(TOBT level, Func& func, Args&... args);
-        template <typename Func, typename... Args>
-        Node* FirstThatImpl(Func& func, Args&... args);
 
        bool SplitRoot();
        void SplitPageInto3(vector<Node>   & tmpKeys,
@@ -553,70 +536,39 @@ void CBTreePage<keyType, ObjIDType>::ForEachReverse(lpfnForEach2 lpfn, TOBT leve
 }*/
 template <typename Traits>
 template <typename Func, typename... Args>
-void CBTreePage<Traits>::ForEach(Func&& func, Args&&... args)
-{
-        ForEachImpl( func, args...);
-}
-
-template <typename Traits>
-template <typename Func, typename... Args>
-void CBTreePage<Traits>::ForEachImpl( Func& func, Args&... args)
+void CBTreePage<Traits>::ForEach(Func func, Args &&... args)
 {
         for( TINDEX i = 0 ; i < m_KeyCount ; i++){
                 if( m_SubPages[i] )
-                        m_SubPages[i]->ForEachImpl( func, args...);
-                func(m_Keys[i], args...);
+                        m_SubPages[i]->ForEach(
+                                func, std::forward<Args>(args)...);
+                func(m_Keys[i], std::forward<Args>(args)...);
         }
         if( m_SubPages[m_KeyCount] )
-                m_SubPages[m_KeyCount]->ForEachImpl(func, args...);
+                m_SubPages[m_KeyCount]->ForEach(func, std::forward<Args>(args)...);
 }
 
-template <typename Traits>
-template <typename Func, typename... Args>
-void CBTreePage<Traits>::ForEachPerPage(Func&& func, Args&&... args)
-{
-        ForEachPerPageImpl(0, func, args...);
-}
 
-template <typename Traits>
-template <typename Func, typename... Args>
-void CBTreePage<Traits>::ForEachPerPageImpl(TOBT level, Func& func, Args&... args)
-{
-        for( TINDEX i = 0 ; i < m_KeyCount ; i++){
-                if( m_SubPages[i] )
-                        m_SubPages[i]->ForEachPerPageImpl(level + 1, func, args...);
-                func(m_Keys[i], level, args...);
-        }
-        if( m_SubPages[m_KeyCount] )
-                m_SubPages[m_KeyCount]->ForEachPerPageImpl(level + 1, func, args...);
-}
 
+//typename CBTreePage<Traits>::Node *
 template <typename Traits>
 template <typename Func, typename... Args>
-typename CBTreePage<Traits>::Node *
-CBTreePage<Traits>::FirstThat(Func&& func, Args&&... args)
-{
-       return FirstThatImpl(func, args...);
-}
 
-template <typename Traits>
-template <typename Func, typename... Args>
-typename CBTreePage<Traits>::Node *
-CBTreePage<Traits>::FirstThatImpl(Func& func, Args&... args)
+auto CBTreePage<Traits>::FirstThat(Func func, Args&&... args)
 {
        Node *pTmp;
        for( TINDEX i = 0 ; i < m_KeyCount ; i++)
        {
                if( m_SubPages[i] ){
-                        pTmp = m_SubPages[i]->FirstThatImpl(func, args...);
+                        pTmp = m_SubPages[i]->FirstThat(func, std::forward<Args>(args)...);
                        if( pTmp )
                                return pTmp;
                }
-               if( func(m_Keys[i], args...) )
+               if( func(m_Keys[i], std::forward<Args>(args)...) )
                        return &m_Keys[i];
        }
        if( m_SubPages[m_KeyCount] ){
-                pTmp = m_SubPages[m_KeyCount]->FirstThatImpl(func, args...);
+                pTmp = m_SubPages[m_KeyCount]->FirstThat(func, std::forward<Args>(args)...);
                if( pTmp )
                        return pTmp;
        }
@@ -625,6 +577,18 @@ CBTreePage<Traits>::FirstThatImpl(Func& func, Args&... args)
 
 
 
+template <typename Traits>
+template <typename Func, typename... Args>
+void CBTreePage<Traits>::ForEachPerPage(TOBT level, Func func, Args&&... args)
+{
+        for( TINDEX i = 0 ; i < m_KeyCount ; i++){
+                if( m_SubPages[i] )
+                        m_SubPages[i]->ForEachPerPage(level + 1, func, std::forward<Args>(args)...);
+                func(m_Keys[i], level, std::forward<Args>(args)...);
+        }
+        if( m_SubPages[m_KeyCount] )
+                m_SubPages[m_KeyCount]->ForEachPerPage(level + 1, func, std::forward<Args>(args)...);
+}
 //template <typename Traits>
 //void CBTreePage<Traits>::ForEach(lpfnForEach2 lpfn, TOBT level, void *pExtra1)
 //{
@@ -810,9 +774,8 @@ CBTreePage<Traits>::GetFirstNode()
        return m_Keys[0];
 }
 
-// Deben eliminarlo e imprimir con un ForEach
-template <typename Traits>
-void Print(tagNode<Traits> &info, TOBT level, void *pExtra)
+template <typename Node>
+void Print(Node &info, TOBT level, void *pExtra)
 {       
         ostream &os = *(ostream *)pExtra;
         for( TINDEX i = 0; i < level ; i++)
@@ -823,8 +786,7 @@ void Print(tagNode<Traits> &info, TOBT level, void *pExtra)
 template <typename Traits>
 void CBTreePage<Traits>::Print(ostream & os)
 {
-        //lpfnForEach2 lpfn = &::Print<Traits>;
-        ForEachPerPage(&::Print<Traits>, &os);
+        ForEachPerPage(0, &::Print<Node>, &os);
 }
 
 template <typename Traits>

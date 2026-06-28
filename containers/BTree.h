@@ -10,28 +10,39 @@
 #include <utility>
 #include "BTreePage.h"
 #include "types.h"
-
+#include "basetrait.h"
 
 #define DEFAULT_BTREE_ORDER 3
 
-template <typename keyType, typename ObjIDType>
+template <typename keyType, typename ObjIDType = long, typename Compare = std::less<keyType>>
 struct BTreeTraits: public BaseBtreeTraits<keyType, ObjIDType>
 {
-       
-       using page_type = CBTreePage<BTreePageTraits<keyType, ObjIDType>>;
-       using node_type = typename page_type::Node;
+       using Comp = Compare;
 };
+
 template <typename keyType, typename ObjIDType = long>
-using BTree = BTreeT<BTreeTraits<keyType, ObjIDType>>;
+struct AscendingBTreeTraits: public BaseBtreeTraits<keyType, ObjIDType>, public AscendingTrait<keyType>
+{
+};
+
+template <typename keyType, typename ObjIDType = long>
+struct DescendingBTreeTraits: public BaseBtreeTraits<keyType, ObjIDType>, public DescendingTrait<keyType>
+{
+};
+
+template <typename keyType, typename ObjIDType = long, typename Compare = std::less<keyType>>
+using BTree = BTreeT<BTreeTraits<keyType, ObjIDType, Compare>>;
 
 
 template <typename Traits>
 class BTreeT 
 // this is the full version of the BTree
 {
-       using BTNode = typename Traits::page_type;// useful shorthand
-       using key_type = typename Traits::key_type;
+       using value_type = typename Traits::value_type;
        using objid_type = typename Traits::objid_type;
+       using Node       = typename Traits::Node;
+       using Comp       = typename Traits::Comp;
+       using BTPage     = CBTreePage<Traits>;
        /*struct Node
        {
                keyType first;
@@ -41,7 +52,7 @@ class BTreeT
 
 public:
        //typedef Node iterator;
-       typedef typename Traits::node_type Node;
+       //typedef typename BTNode::Node NodeRaiz;
 
        class iterator
        {
@@ -82,26 +93,26 @@ public:
        //int           Open (char * name, int mode);
        //int           Create (char * name, int mode);
        //int           Close ();
-       TOBT            Insert (const key_type key, const objid_type ObjID);
-       TOBT            Remove (const key_type key, const objid_type ObjID);
-       objid_type      Search (const key_type key);
+       TOBT            Insert (const value_type key, const objid_type ObjID);
+       TOBT            Remove (const value_type key, const objid_type ObjID);
+       objid_type      Search (const value_type key);
        TOBT            size()  { return m_NumKeys; }
        TOBT            height() { return m_Height;      }
        TOBT            GetOrder() { return m_Order;     }
 
        void            Print (ostream &os);
        template <typename Func, typename... Args>
-       void            ForEach(Func&& func, Args&&... args);
+       void            ForEach(Func func, Args &&... args);
        iterator        begin();
        iterator        end();
 
        
        template <typename Func, typename... Args>
-       Node*     FirstThat(Func&& func, Args&&... args);
+       Node*     FirstThat(Func func, Args&&... args);
        //typedef               Node iterator;
 
 protected:
-       BTNode          m_Root;
+       BTPage        m_Root;
        TOBT             m_Height;  // height of tree
        TOBT             m_Order;   // order of tree
        TOBT            m_NumKeys; // number of keys
@@ -135,7 +146,7 @@ BTreeT<Traits>::~BTreeT()
 }
 
 template <typename Traits>
-TOBT BTreeT<Traits>::Insert(const key_type key, const objid_type ObjID)
+TOBT BTreeT<Traits>::Insert(const value_type key, const objid_type ObjID)
 {
        bt_ErrorCode error = m_Root.Insert(key, ObjID);
        if( error == bt_duplicate )
@@ -151,7 +162,7 @@ TOBT BTreeT<Traits>::Insert(const key_type key, const objid_type ObjID)
 }
 
 template <typename Traits>
-TOBT BTreeT<Traits>::Remove (const key_type key, const objid_type ObjID)
+TOBT BTreeT<Traits>::Remove (const value_type key, const objid_type ObjID)
 {
        bt_ErrorCode error = m_Root.Remove(key, ObjID);
        if( error == bt_duplicate || error == bt_nofound )
@@ -165,7 +176,7 @@ TOBT BTreeT<Traits>::Remove (const key_type key, const objid_type ObjID)
 }
 
 template <typename Traits>
-typename BTreeT<Traits>::objid_type BTreeT<Traits>::Search (const key_type key)
+typename BTreeT<Traits>::objid_type BTreeT<Traits>::Search (const value_type key)
 {
        objid_type ObjID = -1;
        m_Root.Search(key, ObjID);
@@ -175,17 +186,17 @@ typename BTreeT<Traits>::objid_type BTreeT<Traits>::Search (const key_type key)
 
 template <typename Traits>
 template <typename Func, typename... Args>
-void BTreeT<Traits>::ForEach(Func&& func, Args&&... args)
+void BTreeT<Traits>::ForEach(Func func, Args&&... args)
 {
-       m_Root.ForEach(std::forward<Func>(func), std::forward<Args>(args)...);
+       m_Root.ForEach(func, std::forward<Args>(args)...);
 }
 
 template <typename Traits>
 template <typename Func, typename... Args>
 typename BTreeT<Traits>::Node *
-BTreeT<Traits>::FirstThat(Func&& func, Args&&... args)
+BTreeT<Traits>::FirstThat(Func func, Args&&... args)
 {
-       return m_Root.FirstThat(std::forward<Func>(func), std::forward<Args>(args)...);
+       return m_Root.FirstThat(func, std::forward<Args>(args)...);
 }
 
 template <typename Traits>

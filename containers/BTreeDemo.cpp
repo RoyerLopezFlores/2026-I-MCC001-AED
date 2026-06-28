@@ -18,34 +18,29 @@ int main(int argc, char * argv[], char * envp[])
        BTree <TCH> bt (BTreeSize);
        for (i = 0; keys1[i]; i++)
        {
-               //cout<<"Inserting "<<keys1[i]<<endl;
                result = bt.Insert(keys1[i], i*i);
-               //bt.Print(cout);
        }
+       std::cout << "=== Estado inicial del BTree ===" << std::endl;
        bt.Print(cout);
-       /*for (i = 0; keys2[i]; i++)
+       
+       std::cout << "\n=== Prueba de Busqueda ===" << std::endl;
+       for (i = 0; keys2[i] && i < 10; i++)
        {
-               cout << "Searching " << keys2[i] << " ";
                long ObjID = bt.Search(keys2[i]);
                if( ObjID != -1 )
-                       cout << "Achei " << keys2[i] << " ID = " << ObjID << endl;
+                       cout << "Encontrado: " << keys2[i] << " -> ObjID = " << ObjID << endl;
                else
-                       cout <<"Nao achei!" << keys2[i] << endl;
-       }*/
-       /*cout.flush();
-
-       for (i = 0; keys3[i]; i++)
-       {
-               cout << "Removing " << keys3[i] << " ";
-               if( bt.Remove(keys3[i], -1) )
-                       cout << keys3[i] << " removido !" << endl;
-               else
-                       cout <<"Nao achei!" << keys3[i] << endl;
-               bt.Print(cout);
+                       cout << "No encontrado: " << keys2[i] << endl;
        }
-       bt.Print(cout);
-       cout.flush();*/
-        return 0;
+
+       std::cout << "\n=== Prueba de Iterador (begin/end) ===" << std::endl;
+       for (auto node : bt)
+       {
+               cout << node.key << "(" << node.ObjID << ") ";
+       }
+       cout << endl;
+
+       return 0;
 }
 
 /*const char * keys="CDAMPIWNBKEHOLJYQZFXVRTSGU";
