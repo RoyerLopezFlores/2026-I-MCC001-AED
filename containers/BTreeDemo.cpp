@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string>
 #include "BTree.h"
-
+#include "../lists.h"
 //const char * keys="CDAMPIWNBKEHOLJYQZFXVRTSGU";
 using TCH = char;
 using TI = int;
@@ -12,13 +12,14 @@ const TCH * keys2 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvw
 const TCH * keys3 = "DYZakHIUwxVJ203ejOP9Qc8AdtuEop1XvTRghSNbW567BfiCqrs4FGMyzKLlmn";
 
 const TI BTreeSize = 3;
-int main(int argc, char * argv[], char * envp[])
+//int main(int argc, char * argv[], char * envp[])
+void DemoBTree()
 {
-       TI result, i;
+       TI i;
        BTree <TCH> bt (BTreeSize);
        for (i = 0; keys1[i]; i++)
        {
-               result = bt.Insert(keys1[i], i*i);
+               bt.Insert(keys1[i], i*i);
        }
        std::cout << "=== Estado inicial del BTree ===" << std::endl;
        bt.Print(cout);
@@ -32,6 +33,23 @@ int main(int argc, char * argv[], char * envp[])
                else
                        cout << "No encontrado: " << keys2[i] << endl;
        }
+       std::cout << "\n=== Prueba de FirstThat ===" << std::endl;       
+       //Solo es una prueba ::Search es mas optimo que FirstThat, pero sirve para probar el iterador
+       auto searchkey = [](const auto& node, TI searchKey) {
+              return node.key == searchKey;
+       };
+       
+       for (i = 0; keys2[i] && i < 10; i++){
+            auto it = bt.FirstThat(searchkey, keys2[i]);
+            if(it){
+                cout << "Encontrado: "<< keys2[i] << " -> ObjID = " << *it << endl;
+            }else{
+
+                cout << "No encontrado: " << keys2[i] << endl;
+            }
+       }
+
+       cout<<std::endl;
 
        std::cout << "\n=== Prueba de Iterador (begin/end) ===" << std::endl;
        for (auto node : bt)
@@ -39,8 +57,18 @@ int main(int argc, char * argv[], char * envp[])
                cout << node.key << "(" << node.ObjID << ") ";
        }
        cout << endl;
-
-       return 0;
+       std::cout << "\n=== Prueba de Iterador Inverso (rbegin/rend) ===" << std::endl;
+        for (auto node = bt.rbegin(); node != bt.rend(); ++node){
+                        cout << node->key << "(" << node->ObjID << ") ";
+        }
+        cout << endl;
+        
+        std::cout<< "\n=== Prueba ForEach ===" << std::endl;
+        auto printNode = [](const auto& node){
+            cout << node << " ";
+        };
+        bt.ForEach(printNode);
+        cout << endl;
 }
 
 /*const char * keys="CDAMPIWNBKEHOLJYQZFXVRTSGU";

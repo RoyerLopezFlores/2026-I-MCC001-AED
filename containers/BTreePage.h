@@ -56,6 +56,12 @@ void remove(Container& container, TINDEX pos)
 template <typename Traits>
 class BTreeT;
 
+template <typename Container>
+class BTreForwardIterator;
+
+template <typename Container>
+class BTreBackwardIterator;
+
 
 using namespace std;
 enum bt_ErrorCode {bt_ok, bt_overflow, bt_underflow, bt_duplicate, bt_nofound, bt_rootmerged};
@@ -82,6 +88,10 @@ struct tagNode
        tagNode() : key(), ObjID(), UseCounter(0) {}
        operator value_type() const { return key; }
        TLENGTH                 GetUseCounter() const { return UseCounter; }
+        friend ostream& operator<<(ostream& os, const tagNode& node) {
+              os << node.key << "->" << node.ObjID;
+              return os;
+        }
 };
 
 template <typename keyType, typename ObjIDType = long>
@@ -96,6 +106,10 @@ class CBTreePage
 {
         template <typename>
         friend class BTreeT;
+        template <typename>
+        friend class BTreForwardIterator;
+        template <typename>
+        friend class BTreBackwardIterator;
 
 public:
 
@@ -382,8 +396,6 @@ void CBTreePage<Traits>::SplitChild(TINDEX pos)
                        pChild1 = m_SubPages[pos];
                        pChild2 = m_SubPages[pos+1];
                }
-
-       TLENGTH nKeys = pChild1->GetNumberOfKeys() + pChild2->GetNumberOfKeys() + 1;
 
        // SECOND: copy both pages to a temporal one
        // Create two tmp vector
@@ -775,18 +787,18 @@ CBTreePage<Traits>::GetFirstNode()
 }
 
 template <typename Node>
-void Print(Node &info, TOBT level, void *pExtra)
+void Print(Node &info, TOBT level, ostream &os)
 {       
-        ostream &os = *(ostream *)pExtra;
-        for( TINDEX i = 0; i < level ; i++)
-                os << "\t";
-        os << info.key << "->" << info.ObjID << "\n";
+        //ostream &os = *(ostream *)pExtra;
+
+        os << string(level, '\t');
+        os << info << "\n";
 }
 
 template <typename Traits>
 void CBTreePage<Traits>::Print(ostream & os)
 {
-        ForEachPerPage(0, &::Print<Node>, &os);
+        ForEachPerPage(0, &::Print<Node>, os);
 }
 
 template <typename Traits>
