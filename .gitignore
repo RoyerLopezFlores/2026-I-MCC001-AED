@@ -56,3 +56,6 @@ metodos_importantes.md
 avl_tree_dump.txt
 avl_tree_dump2.txt
 .vscode/
+
+sqlpueba/*
+!sqlpueba/pruebaIndex.sql

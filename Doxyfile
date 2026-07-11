@@ -1967,7 +1967,7 @@ MATHJAX_VERSION        = MathJax_2
 
 MATHJAX_FORMAT         = HTML-CSS
 
-# When MathJax is enabled you need to specify the location relative to the HTML
+# Whe n MathJax is enabled you need to specify the location relative to the HTML
 # output directory using the MATHJAX_RELPATH option. For Mathjax version 2 the
 # destination directory should contain the MathJax.js script. For instance, if
 # the mathjax directory is located at the same level as the HTML output
