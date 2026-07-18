@@ -11,12 +11,17 @@ using namespace std;
 |           \-- l
 |               \-- e*
 |-- c
-|   \-- a
+|    |-- o
+|    |    |--s
+|    |    |    |--a*
+|     \-- a
 |       |-- r*
+|       |-- s
+           |-- a*
 |       \-- t*
 \-- d
     \-- o
-        \-- g*
+        \-- g*)
 
 */
 
@@ -183,6 +188,10 @@ int main() {
     tree.insert("car");
     tree.insert("dog");
     tree.insert("apple");
+    tree.insert("casa");
+    tree.insert("cosa");
+    tree.insert("matematicos");
+    tree.insert("matematicas");
 
     cout << boolalpha;
     cout << "IsEmpty: " << tree.IsEmpty() << '\n';
