@@ -107,16 +107,16 @@ int main(){
     }
     inputFile.close();
     std::vector<Persona> personas10 = std::vector<Persona>(personas.begin(), personas.begin() + std::min(size_t(10), personas.size()));
-    std::cout << "First 10 Personas:" << std::endl;
-    std::cout << "Demo useTransformReduce" << std::endl;
+    std::cout<<std::endl << "First 10 Personas:" << std::endl;
+    std::cout<<std::endl << "Demo useTransformReduce" << std::endl;
     useTransformReduce(personas);
-    std::cout << "Demo useForEach" << std::endl;
+    std::cout<<std::endl<< "Demo useForEach" << std::endl;
     useForEach(personas10);
-    std::cout << "Demo useFindIf" << std::endl;
+    std::cout<<std::endl << "Demo useFindIf" << std::endl;
     useFindIf(personas);
-    std::cout << "Demo useSort" << std::endl;
+    std::cout<<std::endl << "Demo useSort" << std::endl;
     useSort(personas);
-    std::cout << "Demo useAnyOf" << std::endl;
+    std::cout<<std::endl << "Demo useAnyOf" << std::endl;
     useAnyOf(personas);
 
     return 0;
