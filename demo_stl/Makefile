@@ -1,6 +1,6 @@
 CXX := g++
 CXXFLAGS := -std=c++2b -O2 -pthread
-TBB_LIBS := -ltbb
+TBB_LIBS := -ltbb12|
 
 .PHONY: all clean
 
